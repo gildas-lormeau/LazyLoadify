@@ -1,4 +1,4 @@
-/* global document, addEventListener, MutationObserver, IntersectionObserver, innerHeight, innerWidth */
+/* global document, addEventListener, MutationObserver, IntersectionObserver, innerHeight, innerWidth, setTimeout, clearTimeout */
 
 "use strict";
 
@@ -16,18 +16,26 @@ const TAG_NAMES_WITH_SRC_ATTRIBUTE = new Set([IMG_TAG_NAME, VIDEO_TAG_NAME, AUDI
 const TAG_NAMES_WITH_SRCSET_ATTRIBUTE = new Set([IMG_TAG_NAME, SOURCE_TAG_NAME]);
 const TAG_NAMES_WITH_POSTER_ATTRIBUTE = new Set([VIDEO_TAG_NAME]);
 const UNSENT_READY_STATE = 0;
-const HTTP_URL_TEST_REGEXP = /^https?:\/\//;
 const DOM_CONTENT_LOADED_EVENT = "DOMContentLoaded";
 const EMPTY_DATA_URI = "data:,";
 const MUTATION_OBSERVER_OPTIONS = { childList: true, subtree: true };
 const MINIMUM_INTERESCTION_RATIO = 0;
+const MUTATION_OBSERVER_TIMEOUT = 2500;
 
 observeDocumentMutations();
 
 function observeDocumentMutations() {
+	let disconnectObserverTimeout;
 	const mutationObserver = new MutationObserver(mutationObserverCallback);
 	mutationObserver.observe(document, MUTATION_OBSERVER_OPTIONS);
-	addEventListener(DOM_CONTENT_LOADED_EVENT, () => mutationObserver.disconnect());
+	addEventListener(DOM_CONTENT_LOADED_EVENT, () => deferDisconnectObserver(mutationObserver));
+
+	function deferDisconnectObserver() {
+		if (disconnectObserverTimeout) {
+			clearTimeout(disconnectObserverTimeout);
+		}
+		disconnectObserverTimeout = setTimeout(() => mutationObserver.disconnect(), MUTATION_OBSERVER_TIMEOUT);
+	}
 }
 
 function mutationObserverCallback(mutationsList) {
@@ -76,7 +84,7 @@ function replaceSource(node, values) {
 
 function resetSource(node, attributeName) {
 	const originalValue = node[attributeName];
-	if (originalValue && originalValue.match(HTTP_URL_TEST_REGEXP)) {
+	if (originalValue) {
 		node[attributeName] = EMPTY_DATA_URI;
 		return originalValue;
 	}
