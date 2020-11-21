@@ -4,6 +4,7 @@
 
 const SRC_ATTRIBUTE_NAME = "src";
 const SRCSET_ATTRIBUTE_NAME = "srcset";
+const POSTER_ATTRIBUTE_NAME = "poster";
 const IMG_TAG_NAME = "IMG";
 const VIDEO_TAG_NAME = "VIDEO";
 const AUDIO_TAG_NAME = "AUDIO";
@@ -13,6 +14,7 @@ const FRAME_TAG_NAME = "FRAME";
 const EMBED_TAG_NAME = "EMBED";
 const TAG_NAMES_WITH_SRC_ATTRIBUTE = new Set([IMG_TAG_NAME, VIDEO_TAG_NAME, AUDIO_TAG_NAME, SOURCE_TAG_NAME, IFRAME_TAG_NAME, FRAME_TAG_NAME, EMBED_TAG_NAME]);
 const TAG_NAMES_WITH_SRCSET_ATTRIBUTE = new Set([IMG_TAG_NAME, SOURCE_TAG_NAME]);
+const TAG_NAMES_WITH_POSTER_ATTRIBUTE = new Set([VIDEO_TAG_NAME]);
 const UNSENT_READY_STATE = 0;
 const HTTP_URL_TEST_REGEXP = /^https?:\/\//;
 const DOM_CONTENT_LOADED_EVENT = "DOMContentLoaded";
@@ -47,26 +49,30 @@ function nodeIsVisible(node) {
 }
 
 function observeNodeIntersection(node) {
-	const originalSrc = resetSource(node, SRC_ATTRIBUTE_NAME);
-	const originalSrcset = resetSource(node, SRCSET_ATTRIBUTE_NAME);
-	const intersectionObserver = new IntersectionObserver((entries, observer) => intersectionObserverCallback(entries, node, observer, originalSrc, originalSrcset));
+	const src = resetSource(node, SRC_ATTRIBUTE_NAME);
+	const srcset = resetSource(node, SRCSET_ATTRIBUTE_NAME);
+	const poster = resetSource(node, POSTER_ATTRIBUTE_NAME);
+	const intersectionObserver = new IntersectionObserver((entries, observer) => intersectionObserverCallback(entries, node, observer, { src, srcset, poster }));
 	intersectionObserver.observe(node.tagName == SOURCE_TAG_NAME ? node.parentElement : node);
 }
 
-function intersectionObserverCallback(entries, node, observer, originalSrc, originalSrcset) {
+function intersectionObserverCallback(entries, node, observer, values) {
 	const entry = entries[0];
 	if (entry) {
 		if (entry.intersectionRatio > MINIMUM_INTERESCTION_RATIO) {
-			replaceSource(node, originalSrc, originalSrcset);
+			replaceSource(node, values);
 			observer.disconnect();
 		}
 	}
 }
 
-function replaceSource(node, originalSrc, originalSrcset) {
-	setSource(node, SRC_ATTRIBUTE_NAME, originalSrc);
+function replaceSource(node, values) {
+	setSource(node, SRC_ATTRIBUTE_NAME, values.src);
 	if (TAG_NAMES_WITH_SRCSET_ATTRIBUTE.has(node.tagName)) {
-		setSource(node, SRCSET_ATTRIBUTE_NAME, originalSrcset);
+		setSource(node, SRCSET_ATTRIBUTE_NAME, values.srcset);
+	}
+	if (TAG_NAMES_WITH_POSTER_ATTRIBUTE.has(node.tagName)) {
+		setSource(node, POSTER_ATTRIBUTE_NAME, values.poster);
 	}
 }
 
