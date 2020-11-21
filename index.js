@@ -26,9 +26,9 @@ observeDocumentMutations();
 
 function observeDocumentMutations() {
 	let disconnectObserverTimeout;
-	const mutationObserver = new MutationObserver(mutationObserverCallback);
+	const mutationObserver = new MutationObserver(mutationsList => mutationObserverCallback(mutationsList, deferDisconnectObserver));
 	mutationObserver.observe(document, MUTATION_OBSERVER_OPTIONS);
-	addEventListener(DOM_CONTENT_LOADED_EVENT, () => deferDisconnectObserver(mutationObserver));
+	addEventListener(DOM_CONTENT_LOADED_EVENT, () => deferDisconnectObserver());
 
 	function deferDisconnectObserver() {
 		if (disconnectObserverTimeout) {
@@ -38,12 +38,16 @@ function observeDocumentMutations() {
 	}
 }
 
-function mutationObserverCallback(mutationsList) {
-	mutationsList.forEach(mutationRecord =>
-		Array.from(mutationRecord.addedNodes)
-			.filter(node => TAG_NAMES_WITH_SRC_ATTRIBUTE.has(node.tagName) && nodeIsHidden(node))
-			.forEach(observeNodeIntersection)
-	);
+function mutationObserverCallback(mutationsList, onProgressCallback) {
+	let observedNodes = [];
+	mutationsList.forEach(mutationRecord => {
+		observedNodes = observedNodes.concat(...Array.from(mutationRecord.addedNodes))
+			.filter(node => TAG_NAMES_WITH_SRC_ATTRIBUTE.has(node.tagName) && nodeIsHidden(node));
+	});
+	if (observedNodes.length) {
+		observedNodes.forEach(observeNodeIntersection);
+		onProgressCallback(observedNodes);
+	}
 }
 
 function nodeIsHidden(node) {
