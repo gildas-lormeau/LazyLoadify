@@ -32,11 +32,9 @@ function observeDocumentMutations() {
 
 function mutationObserverCallback(mutationsList) {
 	mutationsList.forEach(mutationRecord =>
-		mutationRecord.addedNodes.forEach(node => {
-			if (TAG_NAMES_WITH_SRC_ATTRIBUTE.has(node.tagName) && nodeIsHidden(node)) {
-				observeNodeIntersection(node);
-			}
-		})
+		Array.from(mutationRecord.addedNodes)
+			.filter(node => TAG_NAMES_WITH_SRC_ATTRIBUTE.has(node.tagName) && nodeIsHidden(node))
+			.forEach(observeNodeIntersection)
 	);
 }
 
