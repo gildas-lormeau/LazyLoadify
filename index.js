@@ -33,14 +33,14 @@ function observeDocumentMutations() {
 function mutationObserverCallback(mutationsList) {
 	mutationsList.forEach(mutationRecord =>
 		mutationRecord.addedNodes.forEach(node => {
-			if (TAG_NAMES_WITH_SRC_ATTRIBUTE.has(node.tagName) && nodeIsVisible(node)) {
+			if (TAG_NAMES_WITH_SRC_ATTRIBUTE.has(node.tagName) && nodeIsHidden(node)) {
 				observeNodeIntersection(node);
 			}
 		})
 	);
 }
 
-function nodeIsVisible(node) {
+function nodeIsHidden(node) {
 	const boundingClientRect = node.getBoundingClientRect();
 	return boundingClientRect.bottom < 0 ||
 		boundingClientRect.top > innerHeight ||
