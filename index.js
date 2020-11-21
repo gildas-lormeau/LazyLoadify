@@ -5,6 +5,8 @@
 const SRC_ATTRIBUTE_NAME = "src";
 const SRCSET_ATTRIBUTE_NAME = "srcset";
 const POSTER_ATTRIBUTE_NAME = "poster";
+const LOADING_ATTRIBUTE_NAME = "loading";
+const LAZY_LOADING_ATTRIBUTE_VALUE = "lazy";
 const IMG_TAG_NAME = "IMG";
 const VIDEO_TAG_NAME = "VIDEO";
 const AUDIO_TAG_NAME = "AUDIO";
@@ -42,7 +44,7 @@ function mutationObserverCallback(mutationsList, onProgressCallback) {
 	let observedNodes = [];
 	mutationsList.forEach(mutationRecord => {
 		observedNodes = observedNodes.concat(...Array.from(mutationRecord.addedNodes))
-			.filter(node => TAG_NAMES_WITH_SRC_ATTRIBUTE.has(node.tagName) && nodeIsHidden(node));
+			.filter(node => TAG_NAMES_WITH_SRC_ATTRIBUTE.has(node.tagName) && nodeIsHidden(node) && node[LOADING_ATTRIBUTE_NAME] != LAZY_LOADING_ATTRIBUTE_VALUE);
 	});
 	if (observedNodes.length) {
 		observedNodes.forEach(observeNodeIntersection);
