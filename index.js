@@ -21,7 +21,7 @@ const UNSENT_READY_STATE = 0;
 const DOM_CONTENT_LOADED_EVENT = "DOMContentLoaded";
 const EMPTY_DATA_URI = "data:,";
 const MUTATION_OBSERVER_OPTIONS = { childList: true, subtree: true };
-const MINIMUM_INTERESCTION_RATIO = 0;
+const MINIMUM_INTERSECTION_RATIO = 0;
 const MUTATION_OBSERVER_TIMEOUT = 2500;
 
 observeDocumentMutations();
@@ -71,7 +71,7 @@ function observeNodeIntersection(node) {
 function intersectionObserverCallback(entries, node, observer, values) {
 	const entry = entries[0];
 	if (entry) {
-		if (entry.intersectionRatio > MINIMUM_INTERESCTION_RATIO) {
+		if (entry.intersectionRatio > MINIMUM_INTERSECTION_RATIO) {
 			replaceSource(node, values);
 			observer.disconnect();
 		}
