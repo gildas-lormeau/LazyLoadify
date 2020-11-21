@@ -1,4 +1,4 @@
-/* global document, addEventListener, MutationObserver, IntersectionObserver */
+/* global document, addEventListener, MutationObserver, IntersectionObserver, innerHeight, innerWidth */
 
 "use strict";
 
@@ -32,7 +32,15 @@ function mutationObserverCallback(mutationsList) {
 	mutationsList.forEach(mutationRecord =>
 		mutationRecord.addedNodes.forEach(node => {
 			if (TAG_NAMES_WITH_SRC_ATTRIBUTE.has(node.tagName)) {
-				observeNodeIntersection(node);
+				const boundingClientRect = node.getBoundingClientRect();
+				if (
+					boundingClientRect.bottom < 0 ||
+					boundingClientRect.top > innerHeight ||
+					boundingClientRect.left < 0 ||
+					boundingClientRect.right > innerWidth
+				) {
+					observeNodeIntersection(node);
+				}
 			}
 		})
 	);
