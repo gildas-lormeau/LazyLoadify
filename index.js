@@ -46,14 +46,17 @@ function deferDisconnectObserver(mutationObserver, disconnectObserverTimeout) {
 
 function mutationObserverCallback(mutationsList, onProgressCallback) {
 	let observedNodes = [];
-	mutationsList.forEach(mutationRecord => {
-		observedNodes = observedNodes.concat(...Array.from(mutationRecord.addedNodes))
-			.filter(node => TAG_NAMES_WITH_SRC_ATTRIBUTE.has(node.tagName) && nodeIsHidden(node) && node[LOADING_ATTRIBUTE_NAME] != LAZY_LOADING_ATTRIBUTE_VALUE);
-	});
+	mutationsList.forEach(mutationRecord => observedNodes = observedNodes.concat(...Array.from(mutationRecord.addedNodes)).filter(matchObservedNode));
 	if (observedNodes.length) {
 		observedNodes.forEach(observeNodeIntersection);
 		onProgressCallback(observedNodes);
 	}
+}
+
+function matchObservedNode(node) {
+	return TAG_NAMES_WITH_SRC_ATTRIBUTE.has(node.tagName) &&
+		nodeIsHidden(node) &&
+		node[LOADING_ATTRIBUTE_NAME] != LAZY_LOADING_ATTRIBUTE_VALUE;
 }
 
 function nodeIsHidden(node) {
