@@ -27,17 +27,21 @@ const MUTATION_OBSERVER_TIMEOUT = 2500;
 observeDocumentMutations();
 
 function observeDocumentMutations() {
-	let disconnectObserverTimeout;
-	const mutationObserver = new MutationObserver(mutationsList => mutationObserverCallback(mutationsList, deferDisconnectObserver));
+	const disconnectObserverTimeout = {};
+	const mutationObserver = new MutationObserver(mutationsList => mutationObserverCallback(mutationsList, callDeferDisconnectObserver));
 	mutationObserver.observe(document, MUTATION_OBSERVER_OPTIONS);
-	addEventListener(DOM_CONTENT_LOADED_EVENT, () => deferDisconnectObserver());
+	addEventListener(DOM_CONTENT_LOADED_EVENT, callDeferDisconnectObserver);
 
-	function deferDisconnectObserver() {
-		if (disconnectObserverTimeout) {
-			clearTimeout(disconnectObserverTimeout);
-		}
-		disconnectObserverTimeout = setTimeout(() => mutationObserver.disconnect(), MUTATION_OBSERVER_TIMEOUT);
+	function callDeferDisconnectObserver() {
+		deferDisconnectObserver(mutationObserver, disconnectObserverTimeout);
 	}
+}
+
+function deferDisconnectObserver(mutationObserver, disconnectObserverTimeout) {
+	if (disconnectObserverTimeout.id) {
+		clearTimeout(disconnectObserverTimeout.id);
+	}
+	disconnectObserverTimeout.id = setTimeout(() => mutationObserver.disconnect(), MUTATION_OBSERVER_TIMEOUT);
 }
 
 function mutationObserverCallback(mutationsList, onProgressCallback) {
