@@ -49,15 +49,15 @@ function nodeIsVisible(node) {
 function observeNodeIntersection(node) {
 	const originalSrc = resetSource(node, SRC_ATTRIBUTE_NAME);
 	const originalSrcset = resetSource(node, SRCSET_ATTRIBUTE_NAME);
-	const intersectionObserver = new IntersectionObserver((entries, observer) => intersectionObserverCallback(entries, observer, originalSrc, originalSrcset));
+	const intersectionObserver = new IntersectionObserver((entries, observer) => intersectionObserverCallback(entries, node, observer, originalSrc, originalSrcset));
 	intersectionObserver.observe(node.tagName == SOURCE_TAG_NAME ? node.parentElement : node);
 }
 
-function intersectionObserverCallback(entries, observer, originalSrc, originalSrcset) {
+function intersectionObserverCallback(entries, node, observer, originalSrc, originalSrcset) {
 	const entry = entries[0];
 	if (entry) {
 		if (entry.intersectionRatio > MINIMUM_INTERESCTION_RATIO) {
-			replaceSource(entry.target, originalSrc, originalSrcset);
+			replaceSource(node, originalSrc, originalSrcset);
 			observer.disconnect();
 		}
 	}
