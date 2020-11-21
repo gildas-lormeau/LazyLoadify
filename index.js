@@ -31,19 +31,19 @@ function observeDocumentMutations() {
 function mutationObserverCallback(mutationsList) {
 	mutationsList.forEach(mutationRecord =>
 		mutationRecord.addedNodes.forEach(node => {
-			if (TAG_NAMES_WITH_SRC_ATTRIBUTE.has(node.tagName)) {
-				const boundingClientRect = node.getBoundingClientRect();
-				if (
-					boundingClientRect.bottom < 0 ||
-					boundingClientRect.top > innerHeight ||
-					boundingClientRect.left < 0 ||
-					boundingClientRect.right > innerWidth
-				) {
-					observeNodeIntersection(node);
-				}
+			if (TAG_NAMES_WITH_SRC_ATTRIBUTE.has(node.tagName) && nodeIsVisible(node)) {
+				observeNodeIntersection(node);
 			}
 		})
 	);
+}
+
+function nodeIsVisible(node) {
+	const boundingClientRect = node.getBoundingClientRect();
+	return boundingClientRect.bottom < 0 ||
+		boundingClientRect.top > innerHeight ||
+		boundingClientRect.left < 0 ||
+		boundingClientRect.right > innerWidth;
 }
 
 function observeNodeIntersection(node) {
