@@ -45,8 +45,8 @@ function deferDisconnectObserver(mutationObserver, disconnectObserverTimeout) {
 }
 
 function mutationObserverCallback(mutationsList, onProgressCallback) {
-	let observedNodes = [];
-	mutationsList.forEach(mutationRecord => observedNodes = observedNodes.concat(...Array.from(mutationRecord.addedNodes)).filter(matchObservedNode));
+	const observedNodes = [];
+	mutationsList.forEach(mutationRecord => observedNodes.splice(0, 0, ...Array.from(mutationRecord.addedNodes).filter(matchObservedNode)));
 	if (observedNodes.length) {
 		observedNodes.forEach(observeNodeIntersection);
 		onProgressCallback(observedNodes);
