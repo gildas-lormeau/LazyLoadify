@@ -45,12 +45,25 @@ function deferDisconnectObserver(mutationObserver, disconnectObserverTimeout) {
 }
 
 function mutationObserverCallback(mutationsList, onProgressCallback) {
-	const observedNodes = [];
-	mutationsList.forEach(mutationRecord => observedNodes.splice(0, 0, ...Array.from(mutationRecord.addedNodes).filter(matchObservedNode)));
+	const observedNodes = getObservedNodes(mutationsList);
 	if (observedNodes.length) {
 		observedNodes.forEach(observeNodeIntersection);
 		onProgressCallback(observedNodes);
 	}
+}
+
+function getObservedNodes(mutationsList) {
+	const observedNodes = [];
+	mutationsList.forEach(mutationRecord => {
+		const newNodes = new Set(mutationRecord.addedNodes);
+		newNodes.forEach(node => {
+			if (node.querySelectorAll) {
+				node.querySelectorAll(OBSERVED_TAGS_SELECTOR).forEach(node => newNodes.add(node));
+			}
+		});
+		observedNodes.splice(0, 0, ...Array.from(newNodes).filter(matchObservedNode));
+	});
+	return observedNodes;
 }
 
 function matchObservedNode(node) {
