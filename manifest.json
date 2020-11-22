@@ -3,7 +3,7 @@
 	"author": "Gildas Lormeau",
 	"homepage_url": "https://github.com/gildas-lormeau/LazyLoadify",
 	"description": "Web extension to force lazy loading of non-displayed resources (i.e. image, frame, video and audio contents)",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"content_scripts": [
 		{
 			"matches": [
