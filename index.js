@@ -17,9 +17,21 @@ const EMBED_TAG_NAME = "EMBED";
 const TAG_NAMES_WITH_SRC_ATTRIBUTE = new Set([IMG_TAG_NAME, VIDEO_TAG_NAME, AUDIO_TAG_NAME, SOURCE_TAG_NAME, IFRAME_TAG_NAME, FRAME_TAG_NAME, EMBED_TAG_NAME]);
 const TAG_NAMES_WITH_SRCSET_ATTRIBUTE = new Set([IMG_TAG_NAME, SOURCE_TAG_NAME]);
 const TAG_NAMES_WITH_POSTER_ATTRIBUTE = new Set([VIDEO_TAG_NAME]);
+const OBSERVED_TAGS_SELECTOR = Array.from(TAG_NAMES_WITH_SRC_ATTRIBUTE).join(",");
 const UNSENT_READY_STATE = 0;
 const DOM_CONTENT_LOADED_EVENT = "DOMContentLoaded";
-const EMPTY_DATA_URI = "data:,";
+const EMPTY_DEFAULT_DATA_URI = "data:,";
+const EMPTY_IMAGE_DATA_URI = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+const EMPTY_TEXT_DATA_URI = "data:text/plain,";
+const EMPTY_DATA_URI = new Map([
+	[VIDEO_TAG_NAME, EMPTY_DEFAULT_DATA_URI],
+	[AUDIO_TAG_NAME, EMPTY_DEFAULT_DATA_URI],
+	[SOURCE_TAG_NAME, EMPTY_IMAGE_DATA_URI],
+	[IMG_TAG_NAME, EMPTY_IMAGE_DATA_URI],
+	[IFRAME_TAG_NAME, EMPTY_TEXT_DATA_URI],
+	[FRAME_TAG_NAME, EMPTY_TEXT_DATA_URI],
+	[EMBED_TAG_NAME, EMPTY_TEXT_DATA_URI]
+]);
 const MUTATION_OBSERVER_OPTIONS = { childList: true, subtree: true };
 const MINIMUM_INTERSECTION_RATIO = 0;
 const MUTATION_OBSERVER_TIMEOUT = 2500;
@@ -111,13 +123,13 @@ function replaceSource(node, values) {
 function resetSource(node, attributeName) {
 	const originalValue = node[attributeName];
 	if (originalValue) {
-		node[attributeName] = EMPTY_DATA_URI;
+		node[attributeName] = EMPTY_DATA_URI.get(node.tagName);
 		return originalValue;
 	}
 }
 
 function setSource(node, attributeName, value) {
-	if (node[attributeName] == EMPTY_DATA_URI) {
+	if (node[attributeName] == EMPTY_DATA_URI.get(node.tagName)) {
 		if (value) {
 			node[attributeName] = value;
 		} else {
